@@ -457,6 +457,7 @@ $(document).ready(function() {
 	console.log("started");
     document.body.onload = function(){
 		viewPredefinedPassages();
+		$("#question").hide()
 		setEvents();
 	}
 });
@@ -464,13 +465,23 @@ $(document).ready(function() {
     * ------------------------------------------------------ */
     function setEvents(){
 			$("#question").on('keyup' , updateQuestion);
+			$("#go").on('click' , callApp1Backend)
+	}
+	function callApp1Backend(event){
+		fileContent = $("input_passage").val();
+		textobj = { file_path: 'C:/Software/xampp/htdocs/glint/resources/passage.txt' , file_content: }
+		$.post("php/file_services.php" , textobj , displayQuestion);
+	
 	}
 	
+	function displayQuestion(){
+		$("#question").show()
+	}
 	/* send input question:
     * ------------------------------------------------------ */
     function updateQuestion(event){
 		if(event.keyCode == 13){
-			writeFile('question.txt', event.target.value);
+			writeFile('C:/Software/xampp/htdocs/glint/resources/question.txt', event.target.value);
 			
 		}
 	}
@@ -487,9 +498,9 @@ $(document).ready(function() {
 		section.appendChild(p2);
 		
 	}
-	/* write to file: 
+	/* write to question file: 
     * ------------------------------------------------------ */   
-	function writeFile(filePath, fileContent)
+	function writequestionFile(filePath, fileContent)
 	{
 		
 		if(fileContent == "")

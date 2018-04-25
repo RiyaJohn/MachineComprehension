@@ -6,7 +6,7 @@ for line in file:
 file.close();
 
 fh = open("myout.txt", "w")
-lines_of_text = ["Riya eee", "another line of text", "a third line"]
+lines_of_text = ["Riya sda line"]
 fh.writelines(lines_of_text)
 fh.flush()
 fh.close()

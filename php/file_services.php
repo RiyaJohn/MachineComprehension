@@ -1,12 +1,14 @@
 <?php
 $JAVA_HOME = "C:/Program Files/Java/jdk1.8.0_25";
+#$PYTHONPATH = "C:\Users\Johny_Mathew\AppData\Local\Programs\Python\Python36\Lib\site-packages\tensorflow"; 
 $PATH = "$JAVA_HOME/bin:".getenv('PATH');
 putenv("JAVA_HOME=$JAVA_HOME");
 putenv("PATH=$PATH");
+#putenv("PYTHONPATH=$PYTHONPATH");
 echo "<strong>Compile:</strong>";
 echo "<strong>Run:</strong>";
-echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplification1_jar/SentenceSimplification1.jar 2>&1");
-		
+#echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplification1_jar/SentenceSimplification1.jar 2>&1");
+				
         // echo "<strong>Java Version After Setting Environmental Variable</strong>";
         // echo "<hr/>";
         // echo $output;
@@ -21,20 +23,23 @@ echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplif
 
 	extract($_POST);
 	
-	if(strcmp($file_path, 'question.txt') == 0)
+	if(strcmp($file_path, 'C:/Software/xampp/htdocs/glint/resources/question.txt') == 0)
 	{
-		writeToQuestionFile($file_path , $file_content);
-		//RUN JAVA CODE:
-		$status = runApplication();
+		writeToFile($file_path , $file_content);
+		//RUN SIMILARITY CODE:
+		$status = runSimilarity();
 		if($status == 0)
 			readFromAnswerFile();;
 	}
-	else
+	else if(strcmp($file_path, 'C:/Software/xampp/htdocs/glint/resources/passage.txt') == 0)
 	{
-		echo "";
+		writeToFile($file_path , $file_content);
+		//RUN JAVA CODE -> APP1.py:
+		$status = runSimplifyAndQuesGen();
+		
 	}
 	
-	function writeToQuestionFile($file_path , $file_content){
+	function writeToFile($file_path , $file_content){
 		if($file_path && $file_content){
 			$my_file = $file_path;
 			$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
@@ -44,7 +49,7 @@ echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplif
 	}
 	
 	function readFromAnswerFile(){
-		$my_file = "answer.txt";
+		$my_file = "C:/Software/xampp/htdocs/glint/resources/answer.txt";
 		$handle = fopen($my_file, 'r') or die('Cannot open file:  '.$my_file);
 		echo fread($handle, filesize($my_file ));
 		echo "answer";
@@ -52,11 +57,14 @@ echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplif
 	}
 	
 	
-	function runApplication(){
+	function runSimilarity(){
 		//$file_path , $file_content
-		shell_exec("javac SentenceSimplification1/src/main/java/SentenceSimplification/Wrapper.java 2>&1");
-		$output = shell_exec("java SentenceSimplification1/src/main/java/SentenceSimplification/Wrapper 2>&1");
-		return $output;
+		echo shell_exec("py C:/Software/xampp/htdocs/glint/php/MC/similarity.py");
+
+	}
+	
+	function runSimplifyAndQuesGen(){
+		echo shell_exec("java -jar SentenceSimplification1/out/artifacts/SentenceSimplification1_jar/SentenceSimplification1.jar 2>&1");
 	}
 	
 ?>
