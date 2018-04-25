@@ -59,7 +59,9 @@ public class QuestionGenerator {
             int nodeNumber = parentNode.objectIndexOf(oldNode);
             parentNode.setChild(nodeNumber,answerNode);
             String questionString = AnalysisUtilities.getQuestionString(parseTree);
-            questionAnswers.add(new QuestionAnswer(questionString, answer.toString()));
+            QuestionAnswer newpair = new QuestionAnswer(questionString, answer.toString());
+            if(!questionAnswers.contains(newpair))
+                questionAnswers.add(newpair);
             parentNode.setChild(nodeNumber,oldNode);
         }
         return questionAnswers;
@@ -71,9 +73,26 @@ public class QuestionGenerator {
         questionAnswers.addAll(replaceInOrderTo(parseTree));
         questionAnswers.addAll(replaceLest(parseTree));
         questionAnswers.addAll(replaceSoThat(parseTree));
+
+
+//        addUnique(questionAnswers , replaceBecauseClause(parseTree));
+//        addUnique(questionAnswers ,replaceInOrderTo(parseTree));
+//        addUnique(questionAnswers ,replaceLest(parseTree));
+//        addUnique(questionAnswers ,replaceSoThat(parseTree));
         return questionAnswers;
     }
+    private void addUnique(List<QuestionAnswer> questionAnswers,List<QuestionAnswer> input ){
+        System.out.println("addUnique");
 
+        List<QuestionAnswer> questionUniqAnswers = new ArrayList<>();
+        for(QuestionAnswer q : input){
+            if(!questionAnswers.contains(q)){
+                System.out.println(q.getQuestion() + ":" + q.getAnswer());
+                questionUniqAnswers.add(q);
+            }
+
+        }
+    }
     /*
         Replace the clause containing because by why.
         But do not replace the clause if it contains "just because"

@@ -13,7 +13,7 @@ import  java.io.BufferedReader;
 public class Wrapper {
 
     public static void main(String[] args) {
-        String document = "C:/Software/xampp/htdocs/glint/php/passage.txt";
+        String document = "C:/Software/xampp/htdocs/glint/resources/passage.txt";
 
         //generate parse trees for each sentence in the document
         ParseTreeGenerator parseTreeGenerator = new ParseTreeGenerator();
@@ -61,7 +61,7 @@ public class Wrapper {
             sb.append("\n");
         }
         try {
-            File file = new File("simplifiedSentences.txt");
+            File file = new File("C:/Software/xampp/htdocs/glint/resources/simplifiedSentences.txt");
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(sb.toString());
             fileWriter.flush();
@@ -73,24 +73,30 @@ public class Wrapper {
         //generate how and why questions
         QuestionGenerator questionGenerator = new QuestionGenerator();
         List<QuestionAnswer> howAndWhyQuestions = questionGenerator.generateQuestions(trees);
+        StringBuilder howWhyQA = new StringBuilder();
         for(QuestionAnswer qa: howAndWhyQuestions){
+            howWhyQA.append(qa.getQuestion()).append(":").append(qa.getAnswer()).append(",");
             System.out.println("Question: "+qa.getQuestion() + " Answer: "+ qa.getAnswer());
+        }
+        howWhyQA.setLength(howWhyQA.length() - 1);
+
+        try {
+            File file = new File("C:/Software/xampp/htdocs/glint/resources/qa_part1.txt");
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(howWhyQA.toString());
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         try {
-            ProcessBuilder pb = new ProcessBuilder("py","C:/Software/xampp/htdocs/glint/php/MC/app.py" , "--arg1" , "C:/Software/xampp/htdocs/glint/php/SentenceSimplification1/out/artifacts/SentenceSimplification1_jar/simplifiedSentences.txt");
+            ProcessBuilder pb = new ProcessBuilder("py","C:/Software/xampp/htdocs/glint/php/MC/app1.py");//// , "--arg1" , "C:/Software/xampp/htdocs/glint/resources/simplifiedSentences.txt");
            // ProcessBuilder pb = new ProcessBuilder("py","C:/Software/xampp/htdocs/glint/php/test.py"); //, "--arg1" , "C:/Software/xampp/htdocs/glint/php/SentenceSimplification1/out/artifacts/SentenceSimplification1_jar/simplifiedSentences.txt");
             Process p = pb.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        try {
-//            Process p = Runtime.getRuntime().exec("py test1.py");
-//            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//            int ret = new Integer(in.readLine()).intValue();
-//            System.out.println("value is : " + ret);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
+
     }
 }

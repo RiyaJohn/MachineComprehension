@@ -1,5 +1,7 @@
 package main.java.SentenceSimplification;
 
+import java.util.Objects;
+
 public class QuestionAnswer {
 
     private String question;
@@ -23,5 +25,21 @@ public class QuestionAnswer {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        System.out.println("EQ:");
+
+        if (this == o) return true;
+        if (!(o instanceof QuestionAnswer)) return false;
+        QuestionAnswer that = (QuestionAnswer) o;
+        return question.equals(that.question);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(question, answer);
     }
 }
