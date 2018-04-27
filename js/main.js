@@ -22,8 +22,9 @@
 
    /* Preloader
     * -------------------------------------------------- */
-    var clPreloader = function() {
+    var clPreloader = function(time) {
         
+		
         $("html").addClass('cl-preload');
 
         $WIN.on('load', function() {
@@ -34,7 +35,7 @@
             // will first fade out the loading animation 
             $("#loader").fadeOut("slow", function() {
                 // will fade out the whole DIV that covers the website.
-                $("#preloader").delay(300).fadeOut("slow");
+                $("#preloader").delay(time).fadeOut("slow");
             }); 
             
             // for hero content animations 
@@ -435,7 +436,7 @@
     * ------------------------------------------------------ */
     (function ssInit() {
         
-        clPreloader();
+        clPreloader(300);
         clMenuOnScrolldown();
         clOffCanvas();
         clPhotoswipe();
@@ -468,10 +469,10 @@ $(document).ready(function() {
 			$("#go").on('click' , callApp1Backend)
 	}
 	function callApp1Backend(event){
-		fileContent = $("input_passage").val();
-		textobj = { file_path: 'C:/Software/xampp/htdocs/glint/resources/passage.txt' , file_content: }
+		fileContent = $("#input_passage").val();
+		textobj = { file_path: 'C:/Software/xampp/htdocs/glint/resources/passage.txt' , file_content: fileContent }
 		$.post("php/file_services.php" , textobj , displayQuestion);
-	
+		
 	}
 	
 	function displayQuestion(){
@@ -481,7 +482,7 @@ $(document).ready(function() {
     * ------------------------------------------------------ */
     function updateQuestion(event){
 		if(event.keyCode == 13){
-			writeFile('C:/Software/xampp/htdocs/glint/resources/question.txt', event.target.value);
+			writequestionFile('C:/Software/xampp/htdocs/glint/resources/question.txt', event.target.value);
 			
 		}
 	}
@@ -490,9 +491,11 @@ $(document).ready(function() {
     function updateAnswer(data){
 		
 		var section = document.getElementById("question_answer");
-		section.removeChild("answer");
+		if(section.querySelector("#answer") != null) 
+			section.removeChild(document.getElementById("answer"));
 		
 		var p2 = document.createElement('p');
+		p2.className = "col-full";
 		p2.innerHTML = data;
 		p2.id = "answer";
 		section.appendChild(p2);
@@ -522,6 +525,9 @@ $(document).ready(function() {
 		var img_url = 'http://localhost/glint/images/examples/'+passageUrl;
 		$("#input_passage_title").text(passagetitle);
 		//$("#input_passage_div").css("background-image", "url('"+img_url+"')");
+		
+		displayQuestion();
+		//replace pkl file as per selected passage
 	}
 	
    /* view passages:

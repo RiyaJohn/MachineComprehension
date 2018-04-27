@@ -8,8 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.io.InputStreamReader;
-import  java.io.BufferedReader;
+
 public class Wrapper {
 
     public static void main(String[] args) {
@@ -78,7 +77,8 @@ public class Wrapper {
             howWhyQA.append(qa.getQuestion()).append(":").append(qa.getAnswer()).append(",");
             System.out.println("Question: "+qa.getQuestion() + " Answer: "+ qa.getAnswer());
         }
-        howWhyQA.setLength(howWhyQA.length() - 1);
+        if(howWhyQA.length()>0)
+            howWhyQA.setLength(howWhyQA.length() - 1);
 
         try {
             File file = new File("C:/Software/xampp/htdocs/glint/resources/qa_part1.txt");

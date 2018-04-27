@@ -17,9 +17,9 @@ public class QuestionGenerator {
         List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
         for(Question q : sentenceParseTrees){
-            questionAnswers.addAll(generateHowQuestions(q.getSourceTree()));
-            questionAnswers.addAll(generateWhyQuestions(q.getSourceTree()));
-            questionAnswers.addAll(generateWhyQuestions(q.getIntermediateTree()));
+            questionAnswers.addAll(addUnique(questionAnswers , generateHowQuestions(q.getSourceTree())));
+            questionAnswers.addAll(addUnique(questionAnswers , generateWhyQuestions(q.getSourceTree())));
+            questionAnswers.addAll(addUnique(questionAnswers , generateWhyQuestions(q.getIntermediateTree())));
         }
         return questionAnswers;
     }
@@ -69,10 +69,14 @@ public class QuestionGenerator {
 
     private List<QuestionAnswer> generateWhyQuestions(Tree parseTree){
         List<QuestionAnswer> questionAnswers = new ArrayList<>();
-        questionAnswers.addAll(replaceBecauseClause(parseTree));
-        questionAnswers.addAll(replaceInOrderTo(parseTree));
-        questionAnswers.addAll(replaceLest(parseTree));
-        questionAnswers.addAll(replaceSoThat(parseTree));
+//        questionAnswers.addAll(replaceBecauseClause(parseTree));
+//        questionAnswers.addAll(replaceInOrderTo(parseTree));
+//        questionAnswers.addAll(replaceLest(parseTree));
+//        questionAnswers.addAll(replaceSoThat(parseTree));
+          questionAnswers.addAll(addUnique(questionAnswers , replaceBecauseClause(parseTree)));
+          questionAnswers.addAll(addUnique(questionAnswers ,replaceInOrderTo(parseTree)));
+          questionAnswers.addAll(addUnique(questionAnswers ,replaceLest(parseTree)));
+          questionAnswers.addAll(addUnique(questionAnswers , replaceSoThat(parseTree)));
 
 
 //        addUnique(questionAnswers , replaceBecauseClause(parseTree));
@@ -81,17 +85,23 @@ public class QuestionGenerator {
 //        addUnique(questionAnswers ,replaceSoThat(parseTree));
         return questionAnswers;
     }
-    private void addUnique(List<QuestionAnswer> questionAnswers,List<QuestionAnswer> input ){
+    private List<QuestionAnswer> addUnique(List<QuestionAnswer> questionAnswers,List<QuestionAnswer> newInput ){
         System.out.println("addUnique");
-
         List<QuestionAnswer> questionUniqAnswers = new ArrayList<>();
-        for(QuestionAnswer q : input){
-            if(!questionAnswers.contains(q)){
-                System.out.println(q.getQuestion() + ":" + q.getAnswer());
-                questionUniqAnswers.add(q);
-            }
 
+        for(QuestionAnswer old: questionAnswers) {
+            for(QuestionAnswer nw : newInput){
+                System.out.println("addUnique innner for");
+                if(!nw.equals(old)) {
+                    System.out.println("addUnique equals");
+                    questionUniqAnswers.add(nw);
+                }
+            }
         }
+        if(questionAnswers.isEmpty())
+            return newInput;
+        else
+            return questionUniqAnswers;
     }
     /*
         Replace the clause containing because by why.

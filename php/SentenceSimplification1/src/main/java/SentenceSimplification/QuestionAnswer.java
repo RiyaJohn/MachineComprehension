@@ -30,11 +30,8 @@ public class QuestionAnswer {
     @Override
     public boolean equals(Object o) {
         System.out.println("EQ:");
-
-        if (this == o) return true;
-        if (!(o instanceof QuestionAnswer)) return false;
         QuestionAnswer that = (QuestionAnswer) o;
-        return question.equals(that.question);
+        return getQuestion().equals(that.getQuestion()) && getAnswer().equals(that.getAnswer());
     }
 
     @Override
