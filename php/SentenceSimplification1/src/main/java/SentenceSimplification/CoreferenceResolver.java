@@ -11,10 +11,7 @@ import edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon;
 import edu.stanford.nlp.trees.tregex.tsurgeon.TsurgeonPattern;
 import edu.stanford.nlp.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CoreferenceResolver {
 
@@ -38,7 +35,9 @@ public class CoreferenceResolver {
 
             Document.addNPsAbovePossessivePronouns(t);
             Document.addInternalNPStructureForRoleAppositives(t);
+
             trees.add(t);
+
             entityStrings.add(convertSupersensesToEntityString(
                     t,
                     SuperSenseWrapper.getInstance().annotateSentenceWithSupersenses(
@@ -87,11 +86,19 @@ public class CoreferenceResolver {
         List<Boolean> retHadPronouns = new ArrayList<Boolean>();
         Tree replacement;
 
+        List<Question> toRemove = new ArrayList<Question>();
+
+
+        //Iterator<Question> q = treeSet.iterator();
+        //while(q.hasNext()) {
         for (Question q : treeSet) {
             boolean modified = false;
             boolean resolvedPronounsIfNecessary = true;
             boolean hadPronouns = false;
+
             Question qCopy = q.deeperCopy();
+           // Question qCopy = q.next().deeperCopy();
+
             Tree qRoot = qCopy.getIntermediateTree();
 
             List<Tree> replacedMentionTrees = new ArrayList<Tree>();
@@ -134,7 +141,7 @@ public class CoreferenceResolver {
                 extractClarificationFeatures(qCopy, replacedMentionTrees,
                         replacementMentionTrees);
                 newTrees.add(qCopy);
-
+                toRemove.add(q);
             }
 
             if (!modified && resolvedPronounsIfNecessary && hadPronouns) {

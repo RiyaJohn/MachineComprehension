@@ -472,7 +472,7 @@ $(document).ready(function() {
 		fileContent = $("#input_passage").val();
 		textobj = { file_path: 'C:/Software/xampp/htdocs/glint/resources/passage.txt' , file_content: fileContent }
 		$.post("php/file_services.php" , textobj , displayQuestion);
-		
+		mybarmove();
 	}
 	
 	function displayQuestion(){
@@ -520,16 +520,39 @@ $(document).ready(function() {
 	
 	/* insert passages:
     * ------------------------------------------------------ */
-    function insertPassage(passageValue, passageUrl,passagetitle, event) {
+    function insertPassage(passageValue, passageUrl,passagetitle, filePath, event) {
 		$("#input_passage").val(passageValue);
 		var img_url = 'http://localhost/glint/images/examples/'+passageUrl;
 		$("#input_passage_title").text(passagetitle);
 		//$("#input_passage_div").css("background-image", "url('"+img_url+"')");
 		
 		displayQuestion();
-		//replace pkl file as per selected passage
+		
+		//replace pkl file as per selected passage:
+		filePath = "C:/Software/xampp/htdocs/glint/resources/qa_pkl/" + filePath;
+		textobj = { file_path: filePath , prefilled: true};
+		$.post("php/file_services.php", textobj, success);
 	}
 	
+	function success(data){
+		
+		console.log( data)
+	}
+	/* Progress bar move
+    * ------------------------------------------------------ */
+    function mybarmove() {
+	  var elem = document.getElementById("myBar");   
+	  var width = 1;
+	  var id = setInterval(frame, 10000);
+	  function frame() {
+		if (width >= 100) {
+		  clearInterval(id);
+		} else {
+		  width++; 
+		  elem.style.width = width + '%'; 
+		}
+	  }
+	}
    /* view passages:
     * ------------------------------------------------------ */
     function viewPredefinedPassages() {
@@ -539,18 +562,17 @@ $(document).ready(function() {
 			
 			num_rows = data.length/5;
 			
-			for(var i=0;i<num_rows;++i){
+			for(var i=0;i<num_rows;++i) {
 				var row_id = i+1;
 				$("#passages").append("<div class=\"row block-1-5 block-m-1-2 block-mob-full\" data-aos=\"fade-up\" data-aos=\"fade-up\" id='passage-row"+row_id+ "' ></div>");		
-				for(var j=0;j<5;++j){
+				for(var j=0;j<5;++j) {
 					var img_id = i*5+j;
-					$("#passage-row"+row_id).append("<div class='col-block' id='passage"+data[img_id].id+"' ><a href='#works' class='scroll-link smoothscroll' ><img class='img-fluid' src='images/examples/"+data[img_id].image_url+"' alt='"+data[img_id].title+ "' /><p class='col-block' >"+data[img_id].title+"</p></a>"+"</div>");
 					
-					document.getElementById("passage"+data[img_id].id).addEventListener('click' , insertPassage.bind(null, data[img_id].passage , data[img_id].image_url, data[img_id].title), false);
-				
+					$("#passage-row"+row_id).append("<div class='col-block' id='passage"+data[img_id].id+"' ><a href='#works' class='scroll-link smoothscroll' ><img class='img-fluid' src='images/examples/"+data[img_id].image_url+"' alt='"+data[img_id].title+ "' /><p class='col-full' >"+data[img_id].title+"</p></a>"+"</div>");
+					
+					document.getElementById("passage"+data[img_id].id).addEventListener('click' , insertPassage.bind(null, data[img_id].passage , data[img_id].image_url, data[img_id].title, data[img_id].pkl_file_url) , false);
 				
 				}
-				
 			}
 
 		});
