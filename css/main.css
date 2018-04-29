@@ -90,7 +90,7 @@ body {
  * ## links
  * ------------------------------------------------------------------- */
 a {
-    color: #0087cc;
+    color: black;
     -webkit-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
 }
@@ -2492,7 +2492,7 @@ html.no-csstransitions .home-content__main {
  *
  * ------------------------------------------------------------------- */
 .s-works {
-    background: #FFFFFF;
+    background: black;
     padding: 0 0 15rem 0;
     min-height: 800px;
     position: relative;
@@ -3665,11 +3665,49 @@ footer .row {
 }
 
 .input_passage_div {
-	
 	background-color: #DEB887;
 	color: black;
 }
 .input_passage_div textarea,input{
 	border: 1px solid black;
+	color:black;
 }
+#divloader{
+	background-color: black;
+	margin-bottom: 2px;
+	
+}
+/*
+#myProgress {
+    width: 100%;
+    background-color: grey;
+	margin-bottom:5px;
+}
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: green;
+}
+
+.divloader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid blue;
+  border-bottom: 16px solid blue;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+*/
 /*# sourceMappingURL=main.css.map */

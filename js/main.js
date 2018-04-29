@@ -436,7 +436,7 @@
     * ------------------------------------------------------ */
     (function ssInit() {
         
-        clPreloader(300);
+        clPreloader(400);
         clMenuOnScrolldown();
         clOffCanvas();
         clPhotoswipe();
@@ -451,49 +451,129 @@
         clBackToTop();
     })();
         
-        
+    //Event trigger when done typing   
+	$.fn.extend({
+        donetyping: function(callback,timeout){
+            timeout = timeout || 1e3; // 1 second default timeout
+            var timeoutReference,
+                doneTyping = function(el){
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback.call(el);
+                };
+            return this.each(function(i,el){
+                var $el = $(el);
+                // Chrome Fix (Use keyup over keypress to detect backspace)
+                // thank you @palerdot
+                $el.is(':input') && $el.on('keyup keypress paste',function(e){
+                    // This catches the backspace button in chrome, but also prevents
+                    // the event from triggering too preemptively. Without this line,
+                    // using tab/shift+tab will make the focused element fire the callback.
+                    if (e.type=='keyup' && e.keyCode!=8) return;
+                    
+                    // Check if timeout has been set. If it has, "reset" the clock and
+                    // start over again.
+                    if (timeoutReference) clearTimeout(timeoutReference);
+                    timeoutReference = setTimeout(function(){
+                        // if we made it here, our timeout has elapsed. Fire the
+                        // callback
+                        doneTyping(el);
+                    }, timeout);
+                }).on('blur',function(){
+                    // If we can, fire the event since we're leaving the field
+                    doneTyping(el);
+                });
+            });
+        }
+    });
+		
 })(jQuery);
+
+$('#input_passage').donetyping(textAreaAdjust);
 
 $(document).ready(function() {
 	console.log("started");
     document.body.onload = function(){
 		viewPredefinedPassages();
-		$("#question").hide()
+		$("#question").hide();
+		divloaderHide();//$("#divloader").hide();
 		setEvents();
 	}
 });
+
+//GLOBALS
+var userFileName = "User's File";
+var textAreaElem = document.getElementById("input_passage");
+		
+
 	/* set events: input question:
     * ------------------------------------------------------ */
     function setEvents(){
 			$("#question").on('keyup' , updateQuestion);
-			$("#go").on('click' , callApp1Backend)
+			$("#go").on('click' , callApp1Backend);
+			//$("#passage-file").on('change', startRead)
+			//predefinedPassages click insertPassage
+			//$("#input_passage").on('keyup' , textAreaAdjust);
+			
 	}
+	
+	/* Call backend to run Sentence Simplification and Question Generation
+    * ------------------------------------------------------ */    
 	function callApp1Backend(event){
 		fileContent = $("#input_passage").val();
 		textobj = { file_path: 'C:/Software/xampp/htdocs/glint/resources/passage.txt' , file_content: fileContent }
 		$.post("php/file_services.php" , textobj , displayQuestion);
-		mybarmove();
+		divloaderShow();
+		$("#go").hide();
+		hideQuestion();
 	}
 	
+	/* input question:
+    * ------------------------------------------------------ */
+	function hideQuestion(){
+		$("#question").hide();
+	}
+	function clearQuestion(){
+		$("#question").val('');
+	}
 	function displayQuestion(){
 		$("#question").show()
 	}
+	
+	
 	/* send input question:
     * ------------------------------------------------------ */
     function updateQuestion(event){
 		if(event.keyCode == 13){
+			//UI side
+			divloaderShow();//$("#divloader").show();
+			
 			writequestionFile('C:/Software/xampp/htdocs/glint/resources/question.txt', event.target.value);
 			
+		} else{
+			removeAnswerDiv();
+			divloaderHide();
 		}
+	}
+	
+	/* remove answer div:
+    * ------------------------------------------------------ */
+	function removeAnswerDiv(){
+		var section = document.getElementById("question_answer");
+		if(section.querySelector("#answer") != null) 
+			section.removeChild(document.getElementById("answer"));
+		
 	}
 	/* get output of question:
     * ------------------------------------------------------ */
     function updateAnswer(data){
 		
 		var section = document.getElementById("question_answer");
-		if(section.querySelector("#answer") != null) 
-			section.removeChild(document.getElementById("answer"));
 		
+		removeAnswerDiv();
+		
+		divloaderHide();//$("#divloader").hide();
+			
 		var p2 = document.createElement('p');
 		p2.className = "col-full";
 		p2.innerHTML = data;
@@ -520,39 +600,48 @@ $(document).ready(function() {
 	
 	/* insert passages:
     * ------------------------------------------------------ */
-    function insertPassage(passageValue, passageUrl,passagetitle, filePath, event) {
+    function insertPassage(passageValue, imgUrl,passagetitle, filePath, event) {
 		$("#input_passage").val(passageValue);
-		var img_url = 'http://localhost/glint/images/examples/'+passageUrl;
+		
+		//textAreaAdjust:
+		var textAreaElem = document.getElementById("input_passage");
+		textAreaElem.style.height = "1px";
+		textAreaElem.style.height = (3+textAreaElem.scrollHeight)+"px";
+		
+		//Remove answer div
+		removeAnswerDiv();
+		//Clear question value
+		clearQuestion();
+		
+		var img_url = 'http://localhost/glint/images/examples/'+imgUrl;
 		$("#input_passage_title").text(passagetitle);
 		//$("#input_passage_div").css("background-image", "url('"+img_url+"')");
 		
-		displayQuestion();
-		
-		//replace pkl file as per selected passage:
-		filePath = "C:/Software/xampp/htdocs/glint/resources/qa_pkl/" + filePath;
-		textobj = { file_path: filePath , prefilled: true};
-		$.post("php/file_services.php", textobj, success);
+		if(filePath){
+			displayQuestion();
+			//readonly textarea
+			textAreaElem.readOnly = true;
+			//remove start button
+			$("#go").hide();
+			//replace pkl file as per selected passage:
+			filePath = "C:/Software/xampp/htdocs/glint/resources/qa_pkl/" + filePath;
+			textobj = { file_path: filePath , prefilled: true};
+			$.post("php/file_services.php", textobj, success);
+		}else{//when user input case
+			
+			document.getElementById("works_link").click();
+			hideQuestion();
+			textAreaElem.readOnly = false;
+			$("#go").show();
+			
+		}
 	}
 	
 	function success(data){
 		
 		console.log( data)
 	}
-	/* Progress bar move
-    * ------------------------------------------------------ */
-    function mybarmove() {
-	  var elem = document.getElementById("myBar");   
-	  var width = 1;
-	  var id = setInterval(frame, 10000);
-	  function frame() {
-		if (width >= 100) {
-		  clearInterval(id);
-		} else {
-		  width++; 
-		  elem.style.width = width + '%'; 
-		}
-	  }
-	}
+	
    /* view passages:
     * ------------------------------------------------------ */
     function viewPredefinedPassages() {
@@ -568,7 +657,7 @@ $(document).ready(function() {
 				for(var j=0;j<5;++j) {
 					var img_id = i*5+j;
 					
-					$("#passage-row"+row_id).append("<div class='col-block' id='passage"+data[img_id].id+"' ><a href='#works' class='scroll-link smoothscroll' ><img class='img-fluid' src='images/examples/"+data[img_id].image_url+"' alt='"+data[img_id].title+ "' /><p class='col-full' >"+data[img_id].title+"</p></a>"+"</div>");
+					$("#passage-row"+row_id).append("<div class='col-block' id='passage"+data[img_id].id+"' ><a href='#works' class='scroll-link smoothscroll'><img class='img-fluid' src='images/examples/"+data[img_id].image_url+"' alt='"+data[img_id].title+ "' /><p class='col-full' >"+data[img_id].title+"</p></a>"+"</div>");
 					
 					document.getElementById("passage"+data[img_id].id).addEventListener('click' , insertPassage.bind(null, data[img_id].passage , data[img_id].image_url, data[img_id].title, data[img_id].pkl_file_url) , false);
 				
@@ -580,4 +669,74 @@ $(document).ready(function() {
 		
 	};
 	
+	/* Event handler on user's passage:
+    * ------------------------------------------------------ */
+    function startRead() {
+	  // obtain input element through DOM
+	  var file = document.getElementById('passage-file').files[0];
+	  if(file){
+		getAsText(file);
+		}
+	}
 	
+	/* Read user's passage file:
+    * ------------------------------------------------------ */
+	function getAsText(readFile) {
+
+	  var reader = new FileReader();
+
+	  reader.readAsText(readFile, "UTF-8");
+	userFileName = readFile.name;
+	  // Handle progress, success, and errors
+	  // reader.addEventListener('load' , insertPassage.bind(event, event.target.result ,"" , readFile.name, null) , false);
+	  
+	  reader.onload = loaded;
+	  reader.onerror = failure;
+	}
+	
+	/* Read user's passage file contents into try section and move to try:
+    * ------------------------------------------------------ */
+	function loaded(event){
+		console.log( event.target.result)
+		insertPassage(event.target.result , "" , userFileName , null);
+		
+	}
+	
+	function failure(){
+		alert("Failed")
+	}
+	
+	/* Loading gif of Div
+    * ------------------------------------------------------ */
+    function divloaderShow() {
+		$("#divloader").show();
+		$("#input_passage").css('color', 'white'); 
+		textAreaElem.readOnly = true;				
+	}
+	function divloaderHide() {
+		$("#divloader").hide();
+		$("#input_passage").css('color', 'black'); 
+		textAreaElem.readOnly = false;	
+	}
+	
+	function textAreaAdjust() {
+		this.style.height = "1px";
+		this.style.height = (3+this.scrollHeight)+"px";
+	
+	}
+	
+	/* Progress bar move
+    * ------------------------------------------------------ 
+    function mybarmove() {
+	  var elem = document.getElementById("myBar");   
+	  var width = 1;
+	  var id = setInterval(frame, 10000);
+	  function frame() {
+		if (width >= 100) {
+		  clearInterval(id);
+		} else {
+		  width++; 
+		  elem.style.width = width + '%'; 
+		}
+	  }
+	}*/

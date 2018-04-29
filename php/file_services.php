@@ -6,7 +6,6 @@ putenv("JAVA_HOME=$JAVA_HOME");
 putenv("PATH=$PATH");
 
 	extract($_POST);
-	
 	if(strcmp($file_path, 'C:/Software/xampp/htdocs/glint/resources/question.txt') == 0)
 	{
 		#set_time_limit(60);
@@ -14,7 +13,7 @@ putenv("PATH=$PATH");
 		//RUN SIMILARITY CODE:
 		$status = runSimilarity();
 		if($status == 0)
-			readFromAnswerFile();;
+			echo readFromFile("C:/Software/xampp/htdocs/glint/resources/answer.txt");;
 	}
 	else if(strcmp($file_path, 'C:/Software/xampp/htdocs/glint/resources/passage.txt') == 0)
 	{
@@ -22,9 +21,18 @@ putenv("PATH=$PATH");
 		writeToFile($file_path , $file_content);
 		$status = runSimplifyAndQuesGen();
 	}
+	else if($prefilled === "true"){
+		
+		$fileContent = readFromFile($file_path);
+		
+		writeToFile("C:/Software/xampp/htdocs/glint/resources/qa_pickled_file.txt" , $fileContent);
+	}
+	
 	
 	function writeToFile($file_path , $file_content){
+		
 		if($file_path && $file_content){
+			
 			$my_file = $file_path;
 			$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
 			fwrite($handle, $file_content);
@@ -32,19 +40,19 @@ putenv("PATH=$PATH");
 		
 	}
 	
-	function readFromAnswerFile(){
-		$my_file = "C:/Software/xampp/htdocs/glint/resources/answer.txt";
+	function readFromFile($my_file){
+		//$my_file = "C:/Software/xampp/htdocs/glint/resources/answer.txt";
 		$handle = fopen($my_file, 'r') or die('Cannot open file:  '.$my_file);
 		
 		if(filesize($my_file)>0)
-			echo fread($handle, filesize($my_file ));
+			return fread($handle, filesize($my_file ));
 		
 		fclose($handle);
 	}
 	
 	
 	function runSimilarity(){
-		
+		set_time_limit(300);
 		echo shell_exec("py C:/Software/xampp/htdocs/glint/php/MC/similarity.py");
 
 	}
